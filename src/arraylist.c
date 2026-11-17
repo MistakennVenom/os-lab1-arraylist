@@ -69,3 +69,45 @@ void *al_get(const ArrayList *list, size_t index) {
     }
     return list->data[index];
 }
+
+bool al_insert(ArrayList *list, size_t index, void *item) {
+    if (!list || index > list->size) {
+        return false;
+    }
+    if (list->size == list->capacity) {
+        if (!al_resize(list, list->capacity * 2)) {
+            return false;
+        }
+    }
+    if (index < list->size) {
+        memmove(&list->data[index + 1], &list->data[index],
+                (list->size - index) * sizeof(void *));
+    }
+    list->data[index] = item;
+    list->size++;
+    return true;
+}
+
+void *al_remove(ArrayList *list, size_t index) {
+    if (!list || index >= list->size) {
+        return NULL;
+    }
+    void *removed_item = list->data[index];
+    if (index < list->size - 1) {
+        memmove(&list->data[index], &list->data[index + 1],
+                (list->size - index - 1) * sizeof(void *));
+    }
+    list->size--;
+    if (list->capacity > DEFAULT_CAPACITY && list->size <= list->capacity / 4) {
+        al_resize(list, list->capacity / 2);
+    }
+    return removed_item;
+}
+
+bool al_set(ArrayList *list, size_t index, void *item) {
+    if (!list || index >= list->size) {
+        return false;
+    }
+    list->data[index] = item;
+    return true;
+}
